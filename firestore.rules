@@ -14,7 +14,7 @@ service cloud.firestore {
         && request.resource.data.month is string;
       allow read: if true;
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['odo','editedAt','editedBy']);
-      allow delete: if false;
+      allow delete: if true;
     }
     match /monthlyFuel/{id} {
       allow read: if true;
@@ -23,7 +23,8 @@ service cloud.firestore {
         && request.resource.data.totalBaht is number
         && request.resource.data.totalBaht >= 0
         && request.resource.data.submittedAt is timestamp;
-      allow update, delete: if false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalBaht','updatedAt']);
+      allow delete: if true;
     }
   }
 }
