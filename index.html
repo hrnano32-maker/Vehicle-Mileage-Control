@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vehicle Mileage Control</title>
+<meta name="description" content="ระบบควบคุมเลขไมล์รถและน้ำมันเพื่อป้องกันความผิดปกติ">
+<style>
+:root{--navy:#123b5d;--blue:#1769aa;--bg:#f3f6fa;--line:#dce4ed;--text:#17212b;--muted:#647487;--warn:#9a6700;--bad:#b42318;--ok:#18723c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.app{max-width:1200px;margin:auto;padding:20px}.hero{background:linear-gradient(135deg,#123b5d,#1769aa);color:white;border-radius:20px;padding:28px;margin-bottom:18px}.hero h1{margin:0 0 7px;font-size:30px}.hero p{margin:0;opacity:.9}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.nav button{background:#ffffff20;color:white;border:1px solid #ffffff55}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 5px 20px #163b550a}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}input,select,textarea{width:100%;padding:11px;border:1px solid #cbd6e2;border-radius:10px;background:white;font:inherit}input:focus,select:focus,textarea:focus{outline:2px solid #9bc5e5}.muted{color:var(--muted);font-size:13px}.btn{border:0;border-radius:10px;padding:11px 17px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#edf3f8;color:#17364f}.danger{background:#b42318;color:#fff}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stat{padding:14px;background:#f7f9fb;border:1px solid var(--line);border-radius:12px}.stat span{font-size:13px;color:var(--muted)}.stat b{display:block;font-size:21px;margin-top:4px}.alert{padding:12px;border-radius:10px;margin-top:12px;background:#fff6df;border:1px solid #efd48b;color:#735000}.alert.bad{background:#fff0ee;border-color:#f2b7b0;color:#9b241a}.alert.ok{background:#edf9f1;border-color:#b4dec1;color:#176532}.upload{border:2px dashed #abc4da;border-radius:14px;padding:18px;text-align:center;background:#f8fbfe}.preview{max-width:100%;max-height:280px;border-radius:12px;margin-top:10px;display:none}.table{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;border-bottom:1px solid #e5ebf1;text-align:left;white-space:nowrap}th{background:#f4f7fa}.pill{padding:4px 8px;border-radius:99px;background:#eef4f8;font-size:12px}.hidden{display:none}.sectionTitle{display:flex;justify-content:space-between;align-items:center;gap:10px}.row{display:flex;gap:9px;flex-wrap:wrap}.photoBox{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}.kpiBad{color:var(--bad);font-weight:800}.kpiOk{color:var(--ok);font-weight:800}@media(max-width:800px){.grid,.stats{grid-template-columns:1fr}.full{grid-column:auto}.app{padding:10px}.hero h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="hero">
+<h1>🚗 Vehicle Mileage Control</h1>
+<p>ระบบควบคุมเลขไมล์และน้ำมันรถ เพื่อให้ตรวจสอบระยะทาง ค่าใช้จ่าย และความผิดปกติย้อนหลังได้</p>
+<div class="nav"><button class="btn" onclick="show('entry')">บันทึกเลขไมล์</button><button class="btn" onclick="show('fuel')">เติมน้ำมัน</button><button class="btn" onclick="show('dashboard')">Dashboard</button></div>
+</header>
+
+<section id="entry" class="card">
+<div class="sectionTitle"><h2>บันทึกเลขไมล์รายสัปดาห์</h2><span class="pill">หลักฐานรูปภาพ</span></div>
+<div class="grid">
+<div><label>วันที่บันทึก *</label><input id="date" type="date"></div>
+<div><label>สัปดาห์ที่</label><input id="week" type="number" min="1" max="53"></div>
+<div><label>ชื่อพนักงานขับรถ *</label><input id="driver" placeholder="ชื่อ-นามสกุล"></div>
+<div><label>เลขทะเบียนรถ *</label><input id="plate" placeholder="เช่น 1กข 1234"></div>
+<div><label>แผนก/หน่วยงาน</label><input id="department"></div>
+<div><label>ประเภทรถ</label><select id="vehicle"><option>รถยนต์นั่ง</option><option>รถกระบะ</option><option>รถตู้</option><option>รถบรรทุก</option><option>อื่น ๆ</option></select></div>
+<div><label>เลขไมล์ต้นสัปดาห์ *</label><input id="start" type="number" min="0" step="0.1"></div>
+<div><label>เลขไมล์ปลายสัปดาห์ *</label><input id="end" type="number" min="0" step="0.1"></div>
+<div><label>จำนวนวันใช้งาน</label><input id="days" type="number" min="0" max="7"></div>
+<div><label>ระยะทางพิเศษที่ต้องชี้แจง (กม.)</label><input id="extra" type="number" min="0" step="0.1" value="0"></div>
+<div class="full"><label>ภารกิจ/เส้นทางหลัก</label><textarea id="purpose" rows="2" placeholder="เช่น ส่งสินค้า, ไปไซต์งาน, รับ-ส่งเอกสาร"></textarea></div>
+<div class="full"><label>เหตุผลกรณีผิดปกติ / เปลี่ยนรถ / ซ่อม</label><textarea id="note" rows="2"></textarea></div>
+</div>
+<h3>รูปเลขไมล์ *</h3>
+<div class="upload"><input id="photo" type="file" accept="image/*"><div class="muted">ควรถ่ายให้เห็นเลขไมล์ชัดเจน และเก็บไฟล์ต้นฉบับไว้เป็นหลักฐาน</div><img id="preview" class="preview"></div>
+<div class="row" style="margin-top:12px"><button class="btn secondary" onclick="readPhoto()">เตรียมอ่าน OCR</button><span id="ocr" class="pill">ยังไม่ได้อ่านรูป</span></div>
+<div id="entryAlert" class="alert hidden"></div>
+<div class="row" style="margin-top:15px"><button class="btn primary" onclick="saveMileage()">บันทึกเลขไมล์</button><button class="btn secondary" onclick="resetEntry()">ล้างข้อมูล</button></div>
+</section>
+
+<section id="fuel" class="card hidden">
+<div class="sectionTitle"><h2>บันทึกการเติมน้ำมัน</h2><span class="pill">ใช้ตรวจสอบสิ้นเดือน</span></div>
+<div class="grid">
+<div><label>วันที่เติม *</label><input id="fdate" type="date"></div>
+<div><label>ทะเบียนรถ *</label><input id="fplate"></div>
+<div><label>ชื่อผู้ขับรถ</label><input id="fdriver"></div>
+<div><label>เลขไมล์ขณะเติม *</label><input id="fodo" type="number" min="0" step="0.1"></div>
+<div><label>ประเภทน้ำมัน</label><select id="ftype"><option>ดีเซล</option><option>เบนซิน</option><option>แก๊สโซฮอล์ 95</option><option>แก๊สโซฮอล์ 91</option><option>อื่น ๆ</option></select></div>
+<div><label>ปริมาณ (ลิตร) *</label><input id="fliters" type="number" min="0" step="0.01"></div>
+<div><label>ยอดเงิน (บาท) *</label><input id="fcost" type="number" min="0" step="0.01"></div>
+<div><label>ราคาต่อลิตร</label><input id="fprice" type="number" min="0" step="0.01"></div>
+<div class="full"><label>เลขที่ใบเสร็จ/อ้างอิง</label><input id="fref"></div>
+<div class="full"><label>รูปใบเสร็จน้ำมัน</label><input id="freceipt" type="file" accept="image/*"></div>
+</div>
+<div class="row" style="margin-top:14px"><button class="btn primary" onclick="saveFuel()">บันทึกการเติมน้ำมัน</button></div>
+</section>
+
+<section id="dashboard" class="card hidden">
+<div class="sectionTitle"><h2>Dashboard ตรวจสอบ</h2><button class="btn secondary" onclick="renderDashboard()">รีเฟรช</button></div>
+<div class="stats">
+<div class="stat"><span>บันทึกเลขไมล์</span><b id="countM">0</b></div>
+<div class="stat"><span>รายการเติมน้ำมัน</span><b id="countF">0</b></div>
+<div class="stat"><span>ระยะทางรวม</span><b id="totalKm">0</b></div>
+<div class="stat"><span>น้ำมันรวม</span><b id="totalL">0</b></div>
+<div class="stat"><span>ค่าเติมรวม</span><b id="totalCost">0</b></div>
+</div>
+<div id="dashAlert" class="alert hidden"></div>
+<h3>รายการที่ควรตรวจสอบ</h3><div class="table"><table><thead><tr><th>วันที่</th><th>ทะเบียน</th><th>คนขับ</th><th>ระยะทาง</th><th>รายละเอียด</th></tr></thead><tbody id="alerts"></tbody></table></div>
+<h3>รายการเลขไมล์ล่าสุด</h3><div class="table"><table><thead><tr><th>วันที่</th><th>ทะเบียน</th><th>คนขับ</th><th>เริ่ม</th><th>สิ้นสุด</th><th>กม.</th><th>สถานะ</th></tr></thead><tbody id="mileageTable"></tbody></table></div>
+</section>
+</div>
+<script>
+const KM='vmc_mileage_v1',FUEL='vmc_fuel_v1';const $=id=>document.getElementById(id);const get=k=>JSON.parse(localStorage.getItem(k)||'[]');const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+$('date').value=new Date().toISOString().slice(0,10);$('fdate').value=new Date().toISOString().slice(0,10);$('week').value=Math.ceil((new Date().getDate()+new Date(new Date().getFullYear(),new Date().getMonth(),1).getDay())/7);
+function show(id){['entry','fuel','dashboard'].forEach(x=>$(x).classList.toggle('hidden',x!==id));if(id==='dashboard')renderDashboard()}
+$('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{$('preview').src=r.result;$('preview').style.display='block'};r.readAsDataURL(f)});
+function calc(){let a=+$('start').value,b=+$('end').value,e=+$('extra').value||0;return b>=a?(b-a)+e:null}
+function validate(){let k=calc(),a=$('entryAlert');let msgs=[];if(k===null)msgs.push('เลขไมล์ปลายสัปดาห์ต้องไม่น้อยกว่าต้นสัปดาห์');if(k!==null&&k>1500)msgs.push('ระยะทางเกิน 1,500 กม./สัปดาห์ ควรตรวจสอบ');let d=+$('days').value;if(k!==null&&d>0&&k/d>400)msgs.push('เฉลี่ยเกิน 400 กม./วัน ควรตรวจสอบเส้นทาง');let rows=get(KM).filter(x=>x.plate===$('plate').value);if(rows.length&&+$('start').value<rows.at(-1).end)msgs.push('เลขไมล์ต้นสัปดาห์ต่ำกว่ารายการก่อนหน้า');if(msgs.length){a.className='alert bad';a.innerHTML=msgs.map(x=>'⚠️ '+x).join('<br>')}else{a.className='alert ok';a.textContent='✓ ตัวเลขเบื้องต้นผ่านการตรวจสอบ'}}
+['start','end','extra','days','plate'].forEach(x=>$(x).addEventListener('input',validate));
+function readPhoto(){if(!$('photo').files[0])return alert('กรุณาอัปโหลดรูปเลขไมล์');$('ocr').textContent='เตรียมภาพแล้ว — เชื่อม OCR จริงในขั้นฐานข้อมูล/บริการ OCR';}
+function saveMileage(){validate();let k=calc();if(!$('driver').value||!$('plate').value||!$('start').value||!$('end').value||!$('photo').files[0])return alert('กรุณากรอกข้อมูลจำเป็นและแนบรูปเลขไมล์');if(k===null)return alert('เลขไมล์ไม่ถูกต้อง');let rows=get(KM),prev=rows.filter(x=>x.plate===$('plate').value).at(-1),flag=prev&&+$('start').value<prev.end;rows.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),date:$('date').value,week:+$('week').value,driver:$('driver').value,plate:$('plate').value,department:$('department').value,vehicle:$('vehicle').value,start:+$('start').value,end:+$('end').value,days:+$('days').value||0,extra:+$('extra').value||0,km:k,purpose:$('purpose').value,note:$('note').value,photoName:$('photo').files[0].name,flag});put(KM,rows);alert(flag?'บันทึกแล้ว แต่พบความผิดปกติของเลขไมล์':'บันทึกเลขไมล์แล้ว');resetEntry()}
+function saveFuel(){if(!$('fplate').value||!$('fdate').value||!$('fodo').value||!$('fliters').value||!$('fcost').value)return alert('กรุณากรอกข้อมูลเติมน้ำมันให้ครบ');let rows=get(FUEL);rows.push({id:crypto.randomUUID(),createdAt:new Date().toISOString(),date:$('fdate').value,plate:$('fplate').value,driver:$('fdriver').value,odo:+$('fodo').value,type:$('ftype').value,liters:+$('fliters').value,cost:+$('fcost').value,price:+$('fprice').value||((+$('fcost').value)/(+$('fliters').value)),ref:$('fref').value,receiptName:$('freceipt').files[0]?.name||''});put(FUEL,rows);alert('บันทึกการเติมน้ำมันแล้ว')}
+function resetEntry(){['driver','plate','department','start','end','days','extra','purpose','note'].forEach(x=>$(x).value='');$('extra').value=0;$('photo').value='';$('preview').style.display='none';$('ocr').textContent='ยังไม่ได้อ่านรูป';$('entryAlert').className='alert hidden'}
+function renderDashboard(){let m=get(KM),f=get(FUEL),tk=m.reduce((s,x)=>s+x.km,0),tl=f.reduce((s,x)=>s+x.liters,0),tc=f.reduce((s,x)=>s+x.cost,0);$('countM').textContent=m.length;$('countF').textContent=f.length;$('totalKm').textContent=tk.toLocaleString(undefined,{maximumFractionDigits:1})+' กม.';$('totalL').textContent=tl.toLocaleString(undefined,{maximumFractionDigits:2})+' ลิตร';$('totalCost').textContent=tc.toLocaleString(undefined,{maximumFractionDigits:2})+' บาท';let alerts=[];m.forEach(x=>{if(x.flag)alerts.push([x.date,x.plate,x.driver,x.km,'เลขไมล์ย้อนหลังไม่ต่อเนื่อง']);if(x.km>1500)alerts.push([x.date,x.plate,x.driver,x.km,'ระยะทางสูงผิดปกติ'])});let byPlate={};m.forEach(x=>(byPlate[x.plate]??=[]).push(x));Object.entries(byPlate).forEach(([p,a])=>{a.sort((x,y)=>x.date.localeCompare(y.date));for(let i=1;i<a.length;i++)if(a[i].start<a[i-1].end)alerts.push([a[i].date,p,a[i].driver,a[i].km,'เลขไมล์ย้อนกลับ'])});$('alerts').innerHTML=alerts.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="kpiBad">${r[4]}</td></tr>`).join('')||'<tr><td colspan="5">ยังไม่พบรายการที่เข้าเกณฑ์แจ้งเตือน</td></tr>';$('mileageTable').innerHTML=m.slice(-30).reverse().map(x=>`<tr><td>${x.date}</td><td>${x.plate}</td><td>${x.driver}</td><td>${x.start}</td><td>${x.end}</td><td>${x.km.toLocaleString()}</td><td>${x.flag?'⚠️ ตรวจสอบ':'✓ ปกติ'}</td></tr>`).join('')||'<tr><td colspan="7">ยังไม่มีข้อมูล</td></tr>'}
+</script>
+</body></html>
