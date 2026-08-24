@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ส่งรูปเลขไมล์รถ</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root{--green:#11823b;--green2:#e9f8ef;--dark:#123b2a;--line:#d9e6dd;--text:#173022;--muted:#66766c;--red:#b42318}*{box-sizing:border-box}body{margin:0;background:#f3f7f4;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:760px;margin:auto;padding:16px}.top{background:linear-gradient(135deg,#086b30,#18a34a);color:#fff;border-radius:18px;padding:22px;margin-bottom:14px}.top h1{margin:0 0 6px;font-size:25px}.top p{margin:0;opacity:.9}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 5px 18px #123b2a0b}label{font-weight:750;font-size:14px;display:block;margin-bottom:7px}select,input{width:100%;padding:13px;border:1px solid #cbd9d0;border-radius:11px;font:inherit;background:#fff}.upload{border:2px dashed #9bc9ac;border-radius:15px;padding:20px;text-align:center;background:#f7fcf8}.preview{display:none;width:100%;max-height:330px;object-fit:contain;border-radius:12px;margin-top:12px}.ocr{background:var(--green2);border:1px solid #b7dfc4;border-radius:14px;padding:17px;margin-top:14px}.ocr small{color:var(--muted)}.number{font-size:38px;font-weight:900;margin:4px 0}.status{font-weight:700}.btn{width:100%;border:0;border-radius:11px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;margin-top:10px}.primary{background:var(--green);color:#fff}.secondary{background:#edf2ee;color:#24452f}.danger{background:#fff0ee;color:var(--red);border:1px solid #f0c1bb}.hidden{display:none}.notice{font-size:13px;color:var(--muted);line-height:1.6}.success{background:#edf9f1;border:1px solid #b6dec1;color:#176532;padding:13px;border-radius:11px;margin-top:12px}.warning{background:#fff5df;border:1px solid #efd48b;color:#735000;padding:13px;border-radius:11px;margin-top:12px}.lock{display:flex;gap:9px;align-items:center;background:#f5f7f6;border-radius:10px;padding:11px;font-size:13px;color:#4f6256}@media(min-width:700px){.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><h1>🚗 ส่งรูปเลขไมล์รถ</h1><p>พนักงานมีหน้าที่เพียงเลือกทะเบียนรถ ถ่ายรูป และกดส่ง</p></header>
+<section class="card">
+<div class="two">
+<div><label>ทะเบียนรถ *</label><select id="plate"><option value="">-- เลือกรถที่ใช้งาน --</option><option>กข-1234</option><option>ขค-5678</option><option>คง-9012</option></select></div>
+<div><label>วันที่ / เวลา</label><input id="datetime" readonly></div>
+</div>
+<div style="margin-top:14px" class="lock">🔒 ชื่อพนักงานจะมาจากบัญชีที่ Login ระบบ ไม่ต้องกรอกเอง</div>
+</section>
+<section class="card">
+<label>📸 ถ่ายรูปหน้าปัดเลขไมล์ *</label>
+<div class="upload"><input id="photo" type="file" accept="image/*" capture="environment"><div class="notice" style="margin-top:8px">ถ่ายให้เห็นตัวเลข ODO ชัดเจนทั้งชุด ระบบจะอ่านเลขไมล์จากภาพให้เอง</div><img id="preview" class="preview"></div>
+<div id="ocrBox" class="ocr hidden"><small>ผลการอ่านเลขไมล์</small><div id="number" class="number">กำลังอ่าน...</div><div id="status" class="status"></div></div>
+<button id="send" class="btn primary" onclick="submitRecord()">📤 ส่งข้อมูล</button>
+<button class="btn secondary" onclick="clearForm()">ถ่ายรูปใหม่</button>
+<div id="message"></div>
+</section>
+<section class="card"><b>สิ่งที่พนักงานทำ</b><ol class="notice"><li>เลือกทะเบียนรถ</li><li>ถ่ายรูปหน้าปัดเลขไมล์</li><li>กด “ส่งข้อมูล”</li></ol><div class="lock">🔐 เลขไมล์ • วันเวลา • ผู้บันทึก • รูปต้นฉบับ • ระยะทาง จะถูกจัดการโดยระบบ</div></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);let ocrValue=null;let busy=false;
+function tick(){$('datetime').value=new Date().toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'medium'})}tick();setInterval(tick,1000);
+$('photo').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('preview').src=r.result;$('preview').style.display='block'};r.readAsDataURL(f);await runOCR(f)});
+async function runOCR(file){$('ocrBox').classList.remove('hidden');$('number').textContent='กำลังอ่าน...';$('status').textContent='กำลังวิเคราะห์ภาพ กรุณารอสักครู่';ocrValue=null;busy=true;$('send').disabled=true;try{const {data}=await Tesseract.recognize(file,'eng',{logger:m=>{if(m.status==='recognizing text')$('status').textContent=`กำลังอ่านภาพ ${Math.round((m.progress||0)*100)}%`}});const text=data.text||'';const nums=text.replace(/[^0-9]/g,' ' ).match(/\d{4,8}/g)||[];const candidates=nums.map(Number).filter(n=>n>=1000&&n<=9999999);if(!candidates.length){$('number').textContent='อ่านไม่สำเร็จ';$('status').textContent='กรุณาถ่ายใหม่ให้เลข ODO ชัดขึ้น';$('status').className='status warning';return}ocrValue=candidates.sort((a,b)=>b-a)[0];$('number').textContent=ocrValue.toLocaleString()+' กม.';$('status').textContent='✓ อ่านเลขไมล์จากรูปแล้ว';$('status').className='status';}catch(e){$('number').textContent='อ่านไม่สำเร็จ';$('status').textContent='กรุณาถ่ายรูปใหม่';}finally{busy=false;$('send').disabled=false}}
+function submitRecord(){if(!$('plate').value)return alert('กรุณาเลือกทะเบียนรถ');if(!$('photo').files[0])return alert('กรุณาถ่ายรูปเลขไมล์');if(!ocrValue)return alert('ระบบยังอ่านเลขไมล์จากภาพไม่ได้ กรุณาถ่ายใหม่');const rec={plate:$('plate').value,odo:ocrValue,submittedAt:new Date().toISOString(),photoName:$('photo').files[0].name};const old=JSON.parse(localStorage.getItem('employeeMileageQueue')||'[]');old.push(rec);localStorage.setItem('employeeMileageQueue',JSON.stringify(old));$('message').innerHTML='<div class="success">✓ ส่งข้อมูลแล้ว ระบบบันทึกเลขไมล์ '+ocrValue.toLocaleString()+' กม. และจะนำไปตรวจสอบกับข้อมูลเดิมอัตโนมัติ</div>';$('send').disabled=true}
+function clearForm(){location.reload()}
+</script>
+</body></html>
