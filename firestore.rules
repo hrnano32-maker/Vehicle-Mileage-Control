@@ -2,14 +2,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /mileageRecords/{id} {
-      allow create: if request.resource.data.keys().hasAll(['plate','odo','submittedAt','driver','photoUrl','photoPath','month'])
+      allow create: if request.resource.data.keys().hasAll(['plate','odo','submittedAt','driver','photoDataUrl','photoName','month'])
         && request.resource.data.odo is number
         && request.resource.data.odo >= 0
         && request.resource.data.plate in ['3ฒย-2618','4ฒง337','1ฒญ-282']
         && request.resource.data.driver is string
         && request.resource.data.submittedAt is timestamp
-        && request.resource.data.photoUrl is string
-        && request.resource.data.photoPath is string
+        && request.resource.data.photoDataUrl is string
+        && request.resource.data.photoDataUrl.size() < 500000
+        && request.resource.data.photoName is string
         && request.resource.data.month is string;
       allow read: if true;
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['odo','editedAt','editedBy']);
