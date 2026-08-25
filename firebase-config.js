@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js';
 
 const firebaseConfig = {
@@ -18,7 +18,54 @@ const storage = getStorage(app);
 
 export { db, storage };
 
-// โหลดฟังก์ชันสรุประยะทางตามสถานที่เฉพาะหน้า Dashboard
 if (location.pathname.endsWith('/dashboard.html') || location.pathname.endsWith('dashboard.html')) {
   import('./destination-report.js').catch(err => console.error('Destination report module:', err));
+}
+
+// หน้า Employee: เลือกทะเบียนแล้วดึงเลขไมล์ขาเข้าล่าสุดของทะเบียนนั้น
+// เพื่อกรอกเป็นเลขไมล์ขาออกอัตโนมัติสำหรับรายการถัดไป
+if (location.pathname.endsWith('/employee.html') || location.pathname.endsWith('employee.html')) {
+  const fillPreviousMileage = async () => {
+    const plateEl = document.getElementById('plate');
+    const outEl = document.getElementById('odoOut');
+    if (!plateEl || !outEl || !plateEl.value) return;
+
+    try {
+      const snap = await getDocs(
+        query(collection(db, 'mileageRecords'), where('plate', '==', plateEl.value))
+      );
+
+      let latest = null;
+      for (const item of snap.docs) {
+        const data = item.data();
+        const odoIn = Number(data.odoIn);
+        if (!Number.isFinite(odoIn)) continue;
+
+        let submitted = 0;
+        if (data.clientSubmittedAt) submitted = Date.parse(data.clientSubmittedAt) || 0;
+        if (!submitted && data.submittedAt?.seconds) submitted = data.submittedAt.seconds * 1000;
+
+        if (!latest || submitted > latest.submitted) {
+          latest = { odoIn, submitted };
+        }
+      }
+
+      if (latest) {
+        outEl.value = latest.odoIn;
+        outEl.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        outEl.value = '';
+      }
+    } catch (err) {
+      console.warn('ไม่สามารถดึงเลขไมล์ขาเข้าล่าสุดของรถได้:', err);
+    }
+  };
+
+  const attachMileageAutoFill = () => {
+    const plateEl = document.getElementById('plate');
+    if (!plateEl) return setTimeout(attachMileageAutoFill, 50);
+    plateEl.addEventListener('change', fillPreviousMileage);
+  };
+
+  attachMileageAutoFill();
 }
