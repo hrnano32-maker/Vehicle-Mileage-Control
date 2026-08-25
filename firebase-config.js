@@ -17,3 +17,8 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 export { db, storage };
+
+// โหลดฟังก์ชันสรุประยะทางตามสถานที่เฉพาะหน้า Dashboard
+if (location.pathname.endsWith('/dashboard.html') || location.pathname.endsWith('dashboard.html')) {
+  import('./destination-report.js').catch(err => console.error('Destination report module:', err));
+}
