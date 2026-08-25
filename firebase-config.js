@@ -20,6 +20,31 @@ export { db, storage };
 
 if (location.pathname.endsWith('/dashboard.html') || location.pathname.endsWith('dashboard.html')) {
   import('./destination-report.js').catch(err => console.error('Destination report module:', err));
+
+  // หน้าสรุปรายงาน: ซ่อนคอลัมน์วันที่/เวลาเฉพาะบนหน้าจอ
+  // ข้อมูลวันที่/เวลายังคงอยู่ใน currentRows และไม่กระทบฟังก์ชันดาวน์โหลด
+  const hideReportDateTime = () => {
+    const table = document.querySelector('.table table');
+    if (!table) return false;
+
+    table.querySelectorAll('tr').forEach(row => {
+      const firstCell = row.children[0];
+      if (firstCell) firstCell.style.display = 'none';
+    });
+
+    return true;
+  };
+
+  const waitForReportTable = () => {
+    if (!hideReportDateTime()) {
+      setTimeout(waitForReportTable, 100);
+    }
+  };
+
+  waitForReportTable();
+
+  const reportObserver = new MutationObserver(() => hideReportDateTime());
+  reportObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 // หน้า Employee: เลือกทะเบียนแล้วดึงเลขไมล์ขาเข้าล่าสุดของทะเบียนนั้น
