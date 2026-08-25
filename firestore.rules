@@ -2,26 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /mileageRecords/{id} {
-      allow create: if request.resource.data.keys().hasAll(['plate','odo','submittedAt','driver','photoDataUrl','photoName','month'])
-        && request.resource.data.odo is number
-        && request.resource.data.odo >= 0
+      allow create: if request.resource.data.keys().hasAll(['plate','driver','odoOut','odoIn','odo','distanceKm','destination','fuelCost','tollCost','totalTripCost','submittedAt','month'])
         && request.resource.data.plate in ['3ฒย-2618','4ฒง337','1ฒญ-282']
         && request.resource.data.driver is string
+        && request.resource.data.odoOut is number && request.resource.data.odoOut >= 0
+        && request.resource.data.odoIn is number && request.resource.data.odoIn >= request.resource.data.odoOut
+        && request.resource.data.odo == request.resource.data.odoIn
+        && request.resource.data.distanceKm == request.resource.data.odoIn - request.resource.data.odoOut
+        && request.resource.data.destination is string
+        && request.resource.data.fuelCost is number && request.resource.data.fuelCost >= 0
+        && request.resource.data.tollCost is number && request.resource.data.tollCost >= 0
+        && request.resource.data.totalTripCost == request.resource.data.fuelCost + request.resource.data.tollCost
         && request.resource.data.submittedAt is timestamp
-        && request.resource.data.photoDataUrl is string
-        && request.resource.data.photoDataUrl.size() < 500000
-        && request.resource.data.photoName is string
         && request.resource.data.month is string;
       allow read: if true;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['odo','editedAt','editedBy']);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['odoOut','odoIn','odo','distanceKm','destination','fuelCost','tollCost','totalTripCost','editedAt','editedBy'])
+        && request.resource.data.odoOut is number
+        && request.resource.data.odoIn is number && request.resource.data.odoIn >= request.resource.data.odoOut
+        && request.resource.data.odo == request.resource.data.odoIn
+        && request.resource.data.distanceKm == request.resource.data.odoIn - request.resource.data.odoOut
+        && request.resource.data.fuelCost is number && request.resource.data.fuelCost >= 0
+        && request.resource.data.tollCost is number && request.resource.data.tollCost >= 0
+        && request.resource.data.totalTripCost == request.resource.data.fuelCost + request.resource.data.tollCost;
       allow delete: if true;
     }
     match /monthlyFuel/{id} {
       allow read: if true;
       allow create: if request.resource.data.month is string
         && request.resource.data.plate in ['3ฒย-2618','4ฒง337','1ฒญ-282']
-        && request.resource.data.totalBaht is number
-        && request.resource.data.totalBaht >= 0
+        && request.resource.data.totalBaht is number && request.resource.data.totalBaht >= 0
         && request.resource.data.submittedAt is timestamp;
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalBaht','updatedAt']);
       allow delete: if true;
