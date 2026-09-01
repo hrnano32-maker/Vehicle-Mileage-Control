@@ -45,6 +45,24 @@ if (location.pathname.endsWith('/dashboard.html') || location.pathname.endsWith(
 
   const reportObserver = new MutationObserver(() => hideReportDateTime());
   reportObserver.observe(document.body, { childList: true, subtree: true });
+
+  // ระบบยืนยันรหัสก่อนลบรายการเลขไมล์
+  // ทำงานเฉพาะหน้า Dashboard และเฉพาะข้อความยืนยันการลบรายการเลขไมล์
+  const nativeConfirm = window.confirm.bind(window);
+  window.confirm = (message) => {
+    const text = String(message ?? '');
+
+    if (text.startsWith('ยืนยันลบรายการของ')) {
+      const password = window.prompt('🔒 กรุณาใส่รหัสเพื่อยืนยันการลบ');
+
+      if (password !== 'Tan128') {
+        window.alert('❌ รหัสไม่ถูกต้อง ไม่สามารถลบรายการได้');
+        return false;
+      }
+    }
+
+    return nativeConfirm(message);
+  };
 }
 
 // หน้า Employee: เลือกทะเบียนแล้วดึงเลขไมล์ขาเข้าล่าสุดของทะเบียนนั้น
